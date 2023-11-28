@@ -9,7 +9,7 @@ jobs:
   run-tests:
     name: ZAP Scan
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
