@@ -6,46 +6,39 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  run-tests:
-    name: ZAP Scan
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+        with:
+          args:
+            -Dsonar.projectKey=hermanka_vautng
+            -Dsonar.organization=planetaplikasi
+  dast:
+    name: DAST
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3
-      
-      # - name: Create zapnet
-      #   run: docker network create zapnet
 
       - name: Bulding container
         run: docker build -t my-apache2 .
 
       - name: run docker
-        run: docker run -p 80:80 --name docker-apache -d --net bridge my-apache2
-
-      - name: check directory
-        run: docker exec docker-apache cat /etc/hosts
-
-      # - name: check server
-      #   run: curl http://172.17.0.2
-        
-      - name: check dps
-        run: docker ps
-
-      - name: check network
-        run: docker network ls
-
-      - name: docker inspect
-        run: docker inspect docker-apache | grep IPAddress
-
-      # - name: ZAP
-      #   run: docker run --net zapnet -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://172.18.0.2 -J report_json.json -w report_md.md -r report_html.html
+        run: docker run -p 80:80 --name docker-apache -d my-apache2
 
       - name: ZAP Scan
-        uses: hermanka/action-full-scan@master 
+        uses: zaproxy/action-full-scan@v0.8.0
         with:
-          target: 'http://172.17.0.2'
-          # cmd_options: '; curl 172.18.0.2'
+          target: 'http://127.0.0.1'
       
       - name: stop docker
         run: docker stop docker-apache
