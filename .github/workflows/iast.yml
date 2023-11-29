@@ -66,6 +66,9 @@ jobs:
       - name: Inspect isolated network
         run: docker network inspect isolated
 
+      - name: Docker ps
+        run: docker ps
+
         
       - name: check apache from zap
         run: docker exec docker-zap curl http://172.18.0.2
