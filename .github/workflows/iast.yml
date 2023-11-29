@@ -59,7 +59,7 @@ jobs:
       
       - name: Pull & Run ZAP 
         run: |
-              docker pull ictu/zap2docker-weekly -q\
+              docker pull ictu/zap2docker-weekly -q
               docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
 
       # - name: ZAP Scan
