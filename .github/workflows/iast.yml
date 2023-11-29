@@ -6,21 +6,22 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  sast:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Analyze with SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
-        with:
-          args:
-            -Dsonar.projectKey=hermanka_vautng
-            -Dsonar.organization=planetaplikasi
+  # sast:
+    # name: SAST
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - uses: actions/checkout@v3
+    #     with:
+    #       fetch-depth: 0
+    #   - name: Analyze with SonarCloud
+    #     uses: SonarSource/sonarcloud-github-action@master
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+    #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+    #     with:
+    #       args:
+    #         -Dsonar.projectKey=hermanka_vautng
+    #         -Dsonar.organization=planetaplikasi
   dast:
     name: DAST
     permissions: write-all
@@ -29,16 +30,33 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      - name: Create isolated network
+        uses: docker network create --driver bridge isolated
+
+      - name: Inspect isolated network
+        uses: docker network inspect isolated
+
       - name: Bulding container
         run: docker build -t my-apache2 .
 
-      - name: run docker
-        run: docker run -p 80:80 --name docker-apache -d my-apache2
+      # - name: run docker
+      #   run: docker run -p 80:80 --name docker-apache -d my-apache2
 
+      - name: run docker
+        run: docker run --network=isolated -p 80:80 --name docker-apache -d my-apache2
+    
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.8.0
+        uses: hermanka/action-full-scan@master
         with:
-          target: 'http://127.0.0.1'
+          target: 'http://172.18.0.2'
+
+      
+      - name: Inspect isolated network
+        uses: docker network inspect isolated
+      # - name: ZAP Scan
+      #   uses: zaproxy/action-full-scan@v0.8.0
+      #   with:
+      #     target: 'http://127.0.0.1'
       
       - name: stop docker
         run: docker stop docker-apache
