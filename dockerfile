@@ -3,6 +3,6 @@ WORKDIR /var/www/html
 
 
 COPY ./ ./
-RUN rmdir .git
-RUN rmdir .github
+RUN rm -rf .git/*
+RUN rm -rf .github/*
 EXPOSE 80
