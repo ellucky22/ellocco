@@ -48,7 +48,7 @@ jobs:
         run: docker network inspect isolated
 
       - run: docker exec docker-apache ls -la /usr/local/apache2/htdocs/
-      - run: curl http://localhost
+      - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
       # - name: ZAP Scan
       #   uses: hermanka/action-full-scan@master
@@ -57,7 +57,7 @@ jobs:
       #     run: docker network inspect isolated
 
       
-      - name: Pull & Run ZAP 
+      - name: Pull & Run ZAP Container
         run: |
               docker pull ictu/zap2docker-weekly -q
               docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
@@ -73,7 +73,7 @@ jobs:
 
         
       - name: check apache from zap
-        run: docker exec docker-zap curl http://172.18.0.2
+        run: docker exec docker-zap curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
       - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
 
