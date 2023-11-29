@@ -54,8 +54,11 @@ jobs:
       #     run: docker network inspect isolated
 
       
+      - name: Pull ZAP Image
+        run: docker pull ictu/zap2docker-weekly -q
+      
       - name: ZAP Scan
-        run: docker run --network=isolated -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://172.18.0.2/
+        run: docker run --network=isolated -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-full-scan.py -t http://172.18.0.2/
                
       - name: Inspect isolated network
         run: docker network inspect isolated
