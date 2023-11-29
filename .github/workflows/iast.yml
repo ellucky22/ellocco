@@ -50,6 +50,22 @@ jobs:
       - run: docker exec docker-apache ls -la /usr/local/apache2/htdocs/
       - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
+      - name: Tunneling Apache
+        uses: luisboto/ngrok-tunnel-action@<VERSION>
+        with:
+          timeout: 1h
+          port: 80
+          ngrok_authtoken: ${{ secrets.NGROK_AUTHTOKEN }}
+          tunnel_type: http
+          save_url_to_filename: tunnelURL.md
+      
+      - run: ls -la
+
+      - name: Get Tunnel Url
+        run: |
+          URL=$(cat tunnelURL.md)
+          echo "URL=$URL" >> $GITHUB_ENV
+
       # - name: ZAP Scan
       #   uses: hermanka/action-full-scan@master
       #   with:
@@ -73,8 +89,8 @@ jobs:
 
         
       - name: check apache from zap
-        run: docker exec docker-zap curl https://test.bimbelaksi.com
-      - run: docker exec docker-zap zap-baseline.py -I -j -t https://test.bimbelaksi.com
+        run: docker exec docker-zap curl ${{ env.URL }}
+      - run: docker exec docker-zap zap-baseline.py -I -j -t ${{ env.URL }}
       # - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
 
