@@ -35,16 +35,6 @@ jobs:
 
       - name: Bulding App container
         run: docker build -t my-php-site:latest .
-
-      # - name: Bulding Apache container
-      #   run: docker build -t my-apache2 .
-
-      # - name: run docker
-      #   run: docker run -p 80:80 --name docker-apache -d my-apache2
-
-      # - name: Run App container
-      #   run: docker run --network=isolated -p 80:80 --name docker-apache -t -d my-apache2
-
         
       - name: Run App container
         run: docker run --network=isolated -p 80:80 --name docker-apache -t -d my-php-site:latest
@@ -55,33 +45,16 @@ jobs:
       - run: docker exec docker-apache ls -la /var/www/html
       - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
-      # - name: Tunneling Apache
-      #   uses: LuisBoto/ngrok-tunnel-action@v0.1.7.2
-      #   with:
-      #     timeout: 1h
-      #     port: 80
-      #     ngrok_authtoken: ${{ secrets.NGROK_AUTHTOKEN }}
-      #     tunnel_type: http
-      #     save_url_to_filename: tunnelURL.md
-      
-      # - run: ls -la
+      - name: ZAP Scan
+        uses: hermanka/action-full-scan@master
+        with:
+          target: http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
-      # - name: Get Tunnel Url
+      
+      # - name: Pull & Run ZAP Container
       #   run: |
-      #     URL=$(cat tunnelURL.md)
-      #     echo "URL=$URL" >> $GITHUB_ENV
-
-      # - name: ZAP Scan
-      #   uses: hermanka/action-full-scan@master
-      #   with:
-      #     target: 'http://172.18.0.2'
-      #     run: docker network inspect isolated
-
-      
-      - name: Pull & Run ZAP Container
-        run: |
-              docker pull ictu/zap2docker-weekly -q
-              docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
+      #         docker pull ictu/zap2docker-weekly -q
+      #         docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
 
       # - name: ZAP Scan
       #   run: docker run --rm --network=isolated -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-full-scan.py -t http://172.18.0.2/
@@ -93,9 +66,9 @@ jobs:
         run: docker ps
 
         
-      - name: check apache from zap
-        run: docker exec docker-zap curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
-      - run: docker exec docker-zap zap-baseline.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
+      # - name: check apache from zap
+      #   run: docker exec docker-zap curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
+      # - run: docker exec docker-zap zap-baseline.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
       # - name: check apache from zap
       #   run: docker exec docker-zap curl ${{ env.URL }}
       # - run: docker exec docker-zap zap-baseline.py -I -j -t ${{ env.URL }}
