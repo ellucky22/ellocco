@@ -42,13 +42,14 @@ jobs:
       # - name: run docker
       #   run: docker run -p 80:80 --name docker-apache -d my-apache2
 
-      - name: run docker
+      - name: create apache container
         run: docker run --network=isolated -p 80:80 --name docker-apache -d my-apache2
     
       - name: ZAP Scan
         uses: hermanka/action-full-scan@master
         with:
           target: 'http://172.18.0.2'
+          run: docker network inspect isolated
 
       
       - name: Inspect isolated network
