@@ -57,11 +57,10 @@ jobs:
       #     run: docker network inspect isolated
 
       
-      - name: Pull ZAP Image
-        run: docker pull ictu/zap2docker-weekly -q
-      
-      - name: ZAP Scan
-        run: docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
+      - name: Pull & Run ZAP 
+        run: |
+              docker pull ictu/zap2docker-weekly -q\
+              docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
 
       # - name: ZAP Scan
       #   run: docker run --rm --network=isolated -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-full-scan.py -t http://172.18.0.2/
@@ -75,7 +74,7 @@ jobs:
         
       - name: check apache from zap
         run: docker exec docker-zap curl http://172.18.0.2
-      - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):10080
+      - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
 
       # - name: ZAP Scan
