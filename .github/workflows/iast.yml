@@ -45,10 +45,15 @@ jobs:
       - run: docker exec docker-apache ls -la /var/www/html
       - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
+      - name: Get App Url
+        run: |
+          URL=http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
+          echo "URL=$URL" >> $GITHUB_ENV
+
       - name: ZAP Scan
         uses: hermanka/action-full-scan@master
         with:
-          target: http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
+          target: ${{ env.URL }}
 
       
       # - name: Pull & Run ZAP Container
