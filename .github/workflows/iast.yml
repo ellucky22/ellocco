@@ -47,6 +47,8 @@ jobs:
       - name: Inspect isolated network
         run: docker network inspect isolated
 
+      - run: docker exec docker-apache ls -la /usr/local/apache2/htdocs/
+
       # - name: ZAP Scan
       #   uses: hermanka/action-full-scan@master
       #   with:
@@ -72,7 +74,7 @@ jobs:
         
       - name: check apache from zap
         run: docker exec docker-zap curl http://172.18.0.2
-      - run: docker exec docker-zap zap-baseline.py -t http://172.18.0.2
+      - run: docker exec docker-zap zap-baseline.py -I -j -t http://172.18.0.2 
 
 
       # - name: ZAP Scan
