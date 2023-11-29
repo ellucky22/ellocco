@@ -36,22 +36,25 @@ jobs:
       - name: Inspect isolated network
         run: docker network inspect isolated
 
-      - name: Bulding container
+      - name: Bulding Apache container
         run: docker build -t my-apache2 .
 
       # - name: run docker
       #   run: docker run -p 80:80 --name docker-apache -d my-apache2
 
-      - name: create apache container
+      - name: Run Apache container
         run: docker run --network=isolated -p 80:80 --name docker-apache -d my-apache2
     
-      - name: ZAP Scan
-        uses: hermanka/action-full-scan@master
-        with:
-          target: 'http://172.18.0.2'
-          run: docker network inspect isolated
+      # - name: ZAP Scan
+      #   uses: hermanka/action-full-scan@master
+      #   with:
+      #     target: 'http://172.18.0.2'
+      #     run: docker network inspect isolated
 
       
+      - name: ZAP Scan
+        run: docker run --network=isolated -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-full-scan.py -I -j -m 10 -T 60 -t http://172.18.0.2/ -r zap-full-scan-without-user.html
+               
       - name: Inspect isolated network
         run: docker network inspect isolated
       # - name: ZAP Scan
