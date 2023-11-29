@@ -51,7 +51,7 @@ jobs:
       - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
 
       - name: Tunneling Apache
-        uses: luisboto/ngrok-tunnel-action@<VERSION>
+        uses: LuisBoto/ngrok-tunnel-action@v0.1.7.2
         with:
           timeout: 1h
           port: 80
