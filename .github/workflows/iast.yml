@@ -39,52 +39,20 @@ jobs:
       - name: Run App container
         run: docker run --network=isolated -p 80:80 --name docker-apache -t -d my-php-site:latest
     
-      - name: Inspect isolated network
-        run: docker network inspect isolated
-
       - run: docker exec docker-apache ls -la /var/www/html
-      - run: curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
-
-      - name: Get App Url
+      
+      - name: Get App URL
         run: |
           URL=http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
           echo "URL=$URL" >> $GITHUB_ENV
+
+      - name: Check App Url
+        run: curl ${{ env.URL }}
 
       - name: ZAP Scan
         uses: hermanka/action-full-scan@master
         with:
           target: ${{ env.URL }}
 
-      
-      # - name: Pull & Run ZAP Container
-      #   run: |
-      #         docker pull ictu/zap2docker-weekly -q
-      #         docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
-
-      # - name: ZAP Scan
-      #   run: docker run --rm --network=isolated -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-full-scan.py -t http://172.18.0.2/
-               
-      - name: Inspect isolated network
-        run: docker network inspect isolated
-
-      - name: Docker ps
-        run: docker ps
-
-        
-      # - name: check apache from zap
-      #   run: docker exec docker-zap curl http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
-      # - run: docker exec docker-zap zap-baseline.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
-      # - name: check apache from zap
-      #   run: docker exec docker-zap curl ${{ env.URL }}
-      # - run: docker exec docker-zap zap-baseline.py -I -j -t ${{ env.URL }}
-      # - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
-
-
-      # - name: ZAP Scan
-      #   uses: zaproxy/action-full-scan@v0.8.0
-      #   with:
-      #     target: 'http://127.0.0.1'
-      
       - name: stop docker
         run: docker stop docker-apache
-     
