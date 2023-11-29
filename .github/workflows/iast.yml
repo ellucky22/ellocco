@@ -48,6 +48,7 @@ jobs:
         run: docker network inspect isolated
 
       - run: docker exec docker-apache ls -la /usr/local/apache2/htdocs/
+      - run: curl http://localhost
 
       # - name: ZAP Scan
       #   uses: hermanka/action-full-scan@master
