@@ -42,7 +42,7 @@ jobs:
       #   run: docker run -p 80:80 --name docker-apache -d my-apache2
 
       - name: Run Apache container
-        run: docker run --network=isolated -p 80:80 --name docker-apache -d my-apache2
+        run: docker run --network=isolated -p 80:80 --name docker-apache -t -d my-apache2
     
       - name: Inspect isolated network
         run: docker network inspect isolated
@@ -58,7 +58,7 @@ jobs:
         run: docker pull ictu/zap2docker-weekly -q
       
       - name: ZAP Scan
-        run: docker run --network=isolated --name docker-zap -d ictu/zap2docker-weekly
+        run: docker run --network=isolated --name docker-zap -t -d ictu/zap2docker-weekly
 
       # - name: ZAP Scan
       #   run: docker run --rm --network=isolated -v $(pwd):/zap/wrk/:rw -t ictu/zap2docker-weekly zap-full-scan.py -t http://172.18.0.2/
