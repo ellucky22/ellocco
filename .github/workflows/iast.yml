@@ -75,7 +75,7 @@ jobs:
         
       - name: check apache from zap
         run: docker exec docker-zap curl http://172.18.0.2
-      - run: docker exec docker-zap zap-full-scan.py -I -j -t http://172.18.0.2 
+      - run: docker exec docker-zap zap-full-scan.py -I -j -t http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1):10080
 
 
       # - name: ZAP Scan
