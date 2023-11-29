@@ -1,5 +1,6 @@
-FROM httpd:2.4
+FROM php:8.0-apache
+WORKDIR /var/www/html
 
-COPY ./ /usr/local/apache2/htdocs/
-COPY ./httpd.conf /usr/local/apache2/conf/httpd.conf
-RUN rm -rf /usr/local/apache2/htdocs/index.html
+
+COPY ./ ./
+EXPOSE 80
