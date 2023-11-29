@@ -33,8 +33,7 @@ jobs:
       - name: Create isolated network
         run: docker network create --driver bridge isolated
 
-      - name: Inspect isolated network
-        run: docker network inspect isolated
+      
 
       - name: Bulding Apache container
         run: docker build -t my-apache2 .
@@ -45,6 +44,9 @@ jobs:
       - name: Run Apache container
         run: docker run --network=isolated -p 80:80 --name docker-apache -d my-apache2
     
+      - name: Inspect isolated network
+        run: docker network inspect isolated
+
       # - name: ZAP Scan
       #   uses: hermanka/action-full-scan@master
       #   with:
@@ -53,7 +55,7 @@ jobs:
 
       
       - name: ZAP Scan
-        run: docker run --network=isolated -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -I -j -m 10 -T 60 -t http://172.18.0.2/ -r zap-full-scan-without-user.html
+        run: docker run --network=isolated -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://172.18.0.2/
                
       - name: Inspect isolated network
         run: docker network inspect isolated
